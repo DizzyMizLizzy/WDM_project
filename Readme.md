@@ -17,5 +17,7 @@
 
 
 
-#### SAGA Pattern for transactions
+##### SAGA Pattern for transactions (compensating transactions)
+
+##### Kubernetes (use minikube)
 
