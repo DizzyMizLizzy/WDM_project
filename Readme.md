@@ -1,10 +1,8 @@
-## Architecture: Microservices
+## Architecture: Microservices (Payment + Stock + Order)
 
+## Framework: Flask + Redis on Kubernetes
 
-
-## Framework: Flask + Redis + Kubernetes
-
-
+- ##### SAGA Pattern for transactions (compensating transactions)
 
 ### Evaluation:
 
@@ -17,9 +15,11 @@
 
 
 
-##### SAGA Pattern for transactions (compensating transactions)
+Useful links: 
 
-##### Kubernetes (use minikube)
+- https://www.youtube.com/watch?v=JmCn7k0PlV4
+- https://www.youtube.com/watch?v=OqCK95AS-YE
+- https://www.youtube.com/watch?v=X48VuDVv0do&t=263s
 
 
 
