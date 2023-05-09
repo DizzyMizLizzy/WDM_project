@@ -73,8 +73,8 @@ def add_item(order_id, item_id):
     if item_price is None:
         return jsonify({"error": "Item not found"}), 400
 
-    if not subtract_stock_quantity(item_id, 1):
-        return jsonify({"error": "Not enough stock"}), 400
+    # if not subtract_stock_quantity(item_id, 1):
+    #     return jsonify({"error": "Not enough stock"}), 400
 
     items = eval(order_data[b"items"].decode())
     items.append(item_id)
@@ -100,7 +100,7 @@ def remove_item(order_id, item_id):
 
     items.remove(item_id)
     total_cost = int(order_data[b"total_cost"]) - item_price
-    add_stock_quantity(item_id, 1)
+    # add_stock_quantity(item_id, 1)
     db.hmset(order_key, {"items": str(items), "total_cost": total_cost})
     return jsonify({"status": "success"}), 200
 

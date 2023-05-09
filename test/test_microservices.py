@@ -102,12 +102,6 @@ class TestMicroservices(unittest.TestCase):
         self.assertTrue(tu.status_code_is_success(add_stock_response))
 
         add_item_response = tu.add_item_to_order(order_id, item_id1)
-        if not tu.status_code_is_success(add_item_response):
-            print(
-                requests.post(
-                    f"http://127.0.0.1:8000/orders/addItem/{order_id}/{item_id1}"
-                ).text
-            )
         self.assertTrue(tu.status_code_is_success(add_item_response))
         add_item_response = tu.add_item_to_order(order_id, item_id2)
         self.assertTrue(tu.status_code_is_success(add_item_response))
