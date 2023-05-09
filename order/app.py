@@ -133,8 +133,19 @@ def checkout(order_id):
 
     if payment_response.status_code == 200:
         items = eval(order_data[b"items"].decode())
+        revert_order_items = []
         for item_id in items:
-            subtract_stock_quantity(item_id, 1)
+            # ************ pay special attetion here, may need changes later ************
+            # this place has bug, if one item is not enough, the whole order will be canceled
+            if not subtract_stock_quantity(item_id, 1):
+                cancel_response = requests.post(
+                    f"{gateway_url}/payment/cancel/{user_id}/{order_id}"
+                )
+                if cancel_response.status_code == 200:
+                    for item_id in revert_order_items:
+                        add_stock_quantity(item_id, 1)
+                    return jsonify({"error": "Not enough stock"}), 400
+            revert_order_items.append(item_id)
         db.hmset(order_key, {"items": str(items), "paid": "True"})
         return jsonify({"status": "success"}), 200
     else:
