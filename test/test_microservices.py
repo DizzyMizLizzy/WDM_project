@@ -59,7 +59,6 @@ class TestMicroservices(unittest.TestCase):
         self.assertTrue("order_id" in order)
 
         order_id: str = order["order_id"]
-
         add_item_response = tu.add_item_to_order(order_id, item_id)
         self.assertTrue(tu.status_code_is_success(add_item_response))
 
@@ -86,7 +85,6 @@ class TestMicroservices(unittest.TestCase):
         self.assertTrue("order_id" in order)
 
         order_id: str = order["order_id"]
-        print(order_id)
         # add item to the stock service
         item1: dict = tu.create_item(5)
         self.assertTrue("item_id" in item1)
@@ -109,6 +107,7 @@ class TestMicroservices(unittest.TestCase):
         self.assertTrue(tu.status_code_is_success(subtract_stock_response))
 
         checkout_response = tu.checkout_order(order_id).status_code
+        # print(str(checkout_response) + "in line 110")
         self.assertTrue(tu.status_code_is_failure(checkout_response))
 
         stock_after_subtract: int = tu.find_item(item_id1)["stock"]
@@ -121,6 +120,7 @@ class TestMicroservices(unittest.TestCase):
         self.assertEqual(credit_after_payment, 0)
 
         checkout_response = tu.checkout_order(order_id).status_code
+        # print(str(checkout_response) + "in line 123")
         self.assertTrue(tu.status_code_is_failure(checkout_response))
 
         add_credit_response = tu.add_credit_to_user(user_id, 15)
@@ -133,6 +133,7 @@ class TestMicroservices(unittest.TestCase):
         self.assertEqual(stock, 15)
 
         checkout_response = tu.checkout_order(order_id).status_code
+        # print(str(checkout_response) + "in line 134")
         self.assertTrue(tu.status_code_is_success(checkout_response))
 
         stock_after_subtract: int = tu.find_item(item_id1)["stock"]

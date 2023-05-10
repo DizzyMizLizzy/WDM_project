@@ -41,9 +41,9 @@ spec:
             - containerPort: 5000
           env:
             - name: USER_SERVICE_URL
-              value: "user-service"
+              value: "http://user-service:5000"
             - name: STOCK_SERVICE_URL
-              value: "stock-service"
+              value: "http://stock-service:5000"
             - name: REDIS_HOST
               value: redis-master
             - name: REDIS_PORT

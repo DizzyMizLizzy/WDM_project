@@ -21,8 +21,6 @@ if running_in_kubernetes:
     stock_service_url = os.environ["STOCK_SERVICE_URL"]
 else:
     gateway_url = os.environ["GATEWAY_URL"]
-    user_service_url = gateway_url
-    stock_service_url = gateway_url
 
 
 def close_db_connection():
@@ -33,7 +31,11 @@ atexit.register(close_db_connection)
 
 
 def get_item_price(item_id):
-    response = requests.get(f"{stock_service_url}/stock/find/{item_id}")
+    if running_in_kubernetes:
+        response = requests.get(f"{stock_service_url}/find/{item_id}")
+    else:
+        response = requests.get(f"{gateway_url}/stock/find/{item_id}")
+
     if response.status_code == 200:
         return response.json()["price"]
     else:
@@ -41,12 +43,40 @@ def get_item_price(item_id):
 
 
 def subtract_stock_quantity(item_id, quantity):
-    response = requests.post(f"{stock_service_url}/stock/subtract/{item_id}/{quantity}")
+    if running_in_kubernetes:
+        response = requests.post(f"{stock_service_url}/subtract/{item_id}/{quantity}")
+    else:
+        response = requests.post(f"{gateway_url}/stock/subtract/{item_id}/{quantity}")
+
     return response.status_code == 200
 
 
 def add_stock_quantity(item_id, quantity):
-    response = requests.post(f"{stock_service_url}/stock/add/{item_id}/{quantity}")
+    if running_in_kubernetes:
+        response = requests.post(f"{stock_service_url}/add/{item_id}/{quantity}")
+    else:
+        response = requests.post(f"{gateway_url}/stock/add/{item_id}/{quantity}")
+
+    return response.status_code == 200
+
+
+def process_payment(user_id, order_id, total_cost):
+    if running_in_kubernetes:
+        response = requests.post(
+            f"{user_service_url}/pay/{user_id}/{order_id}/{total_cost}"
+        )
+    else:
+        response = requests.post(
+            f"{gateway_url}/payment/pay/{user_id}/{order_id}/{total_cost}"
+        )
+    return response.status_code == 200
+
+
+def cancel_payment(user_id, order_id):
+    if running_in_kubernetes:
+        response = requests.post(f"{user_service_url}/cancel/{user_id}/{order_id}")
+    else:
+        response = requests.post(f"{gateway_url}/payment/cancel/{user_id}/{order_id}")
     return response.status_code == 200
 
 
@@ -78,9 +108,9 @@ def add_item(order_id, item_id):
         return jsonify({"error": "Order not found"}), 400
 
     item_price = get_item_price(item_id)
+
     if item_price is None:
         return jsonify({"error": "Item not found"}), 400
-
     # if not subtract_stock_quantity(item_id, 1):
     #     return jsonify({"error": "Not enough stock"}), 400
 
@@ -135,21 +165,17 @@ def checkout(order_id):
         return jsonify({"error": "Order not found"}), 400
     user_id = order_data[b"user_id"].decode()
     total_cost = int(order_data[b"total_cost"])
-    payment_response = requests.post(
-        f"{user_service_url}/payment/pay/{user_id}/{order_id}/{total_cost}"
-    )
+    payment_response = process_payment(user_id, order_id, total_cost)
 
-    if payment_response.status_code == 200:
+    if payment_response == True:
         items = eval(order_data[b"items"].decode())
         revert_order_items = []
         for item_id in items:
             # ************ pay special attetion here, may need changes later ************
             # this place has bug, if one item is not enough, the whole order will be canceled
             if not subtract_stock_quantity(item_id, 1):
-                cancel_response = requests.post(
-                    f"{user_service_url}/payment/cancel/{user_id}/{order_id}"
-                )
-                if cancel_response.status_code == 200:
+                cancel_response = cancel_payment(user_id, order_id)
+                if cancel_response == True:
                     for item_id in revert_order_items:
                         add_stock_quantity(item_id, 1)
                     return jsonify({"error": "Not enough stock"}), 400
