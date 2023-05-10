@@ -14,7 +14,15 @@ db: redis.Redis = redis.Redis(
     db=int(os.environ["REDIS_DB"]),
 )
 
-gateway_url = os.environ["GATEWAY_URL"]
+running_in_kubernetes = os.environ.get("RUNNING_IN_KUBERNETES")
+
+if running_in_kubernetes:
+    user_service_url = os.environ["USER_SERVICE_URL"]
+    stock_service_url = os.environ["STOCK_SERVICE_URL"]
+else:
+    gateway_url = os.environ["GATEWAY_URL"]
+    user_service_url = gateway_url
+    stock_service_url = gateway_url
 
 
 def close_db_connection():
@@ -25,7 +33,7 @@ atexit.register(close_db_connection)
 
 
 def get_item_price(item_id):
-    response = requests.get(f"{gateway_url}/stock/find/{item_id}")
+    response = requests.get(f"{stock_service_url}/stock/find/{item_id}")
     if response.status_code == 200:
         return response.json()["price"]
     else:
@@ -33,12 +41,12 @@ def get_item_price(item_id):
 
 
 def subtract_stock_quantity(item_id, quantity):
-    response = requests.post(f"{gateway_url}/stock/subtract/{item_id}/{quantity}")
+    response = requests.post(f"{stock_service_url}/stock/subtract/{item_id}/{quantity}")
     return response.status_code == 200
 
 
 def add_stock_quantity(item_id, quantity):
-    response = requests.post(f"{gateway_url}/stock/add/{item_id}/{quantity}")
+    response = requests.post(f"{stock_service_url}/stock/add/{item_id}/{quantity}")
     return response.status_code == 200
 
 
@@ -128,7 +136,7 @@ def checkout(order_id):
     user_id = order_data[b"user_id"].decode()
     total_cost = int(order_data[b"total_cost"])
     payment_response = requests.post(
-        f"{gateway_url}/payment/pay/{user_id}/{order_id}/{total_cost}"
+        f"{user_service_url}/payment/pay/{user_id}/{order_id}/{total_cost}"
     )
 
     if payment_response.status_code == 200:
@@ -139,7 +147,7 @@ def checkout(order_id):
             # this place has bug, if one item is not enough, the whole order will be canceled
             if not subtract_stock_quantity(item_id, 1):
                 cancel_response = requests.post(
-                    f"{gateway_url}/payment/cancel/{user_id}/{order_id}"
+                    f"{user_service_url}/payment/cancel/{user_id}/{order_id}"
                 )
                 if cancel_response.status_code == 200:
                     for item_id in revert_order_items:

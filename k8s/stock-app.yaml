@@ -27,13 +27,13 @@ spec:
     spec:
       containers:
         - name: stock
-          image: stock:latest
+          image: ltroin/stock:latest
           resources:
             limits:
-              memory: "1Gi"
+              memory: "0.5Gi"
               cpu: "1"
             requests:
-              memory: "1Gi"
+              memory: "0.5Gi"
               cpu: "1"
           command: ["gunicorn"]
           args: ["-b", "0.0.0.0:5000", "app:app"]

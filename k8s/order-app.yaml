@@ -27,13 +27,13 @@ spec:
     spec:
       containers:
         - name: order
-          image: order:latest
+          image: ltroin/order:latest
           resources:
             limits:
-              memory: "1Gi"
+              memory: "0.5Gi"
               cpu: "1"
             requests:
-              memory: "1Gi"
+              memory: "0.5Gi"
               cpu: "1"
           command: ["gunicorn"]
           args: ["-b", "0.0.0.0:5000", "app:app"]
@@ -52,3 +52,5 @@ spec:
               value: "redis"
             - name: REDIS_DB
               value: "0"
+            - name: RUNNING_IN_KUBERNETES
+              value: "true"
