@@ -21,6 +21,25 @@ Useful links:
 - https://www.youtube.com/watch?v=OqCK95AS-YE
 - https://www.youtube.com/watch?v=X48VuDVv0do&t=263s
 
+
+
+### Redis Command
+
+- Order object
+  - order_id
+  - paid
+  - items (list)
+  - user_id
+  - total_cost
+- Add order
+  - `HSET order:{order_id} order_object`
+- TO-DO
+  - decentralized data management
+  - SAGA pattern(message broker between microservices)
+  - asyncio.Redis ?
+
+
+
 # Test Instructions of Kubernetes
 
 ### 1. Start minikube cluster

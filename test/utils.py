@@ -1,6 +1,6 @@
 import requests
 
-ORDER_URL = STOCK_URL = PAYMENT_URL = "http://127.0.0.1:80"
+ORDER_URL = STOCK_URL = PAYMENT_URL = "http://127.0.0.1:8000"
 
 
 ########################################################################################################################
@@ -49,6 +49,7 @@ def add_credit_to_user(user_id: str, amount: float) -> int:
 #   ORDER MICROSERVICE FUNCTIONS
 ########################################################################################################################
 def create_order(user_id: str) -> dict:
+    print(requests.post(f"{ORDER_URL}/orders/create/{user_id}").json())
     return requests.post(f"{ORDER_URL}/orders/create/{user_id}").json()
 
 
