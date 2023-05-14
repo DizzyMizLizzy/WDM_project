@@ -1,0 +1,44 @@
+name: Docker
+
+on: push
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    -
+        # Setting up Docker Buildx with docker-container driver is required
+        # at the moment to be able to use a subdirectory with Git context
+      name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Build and push order service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./order
+        push: true
+        tags: ltroin/order:latest
+
+    - name: Build and push payment service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./payment
+        push: true
+        tags: ltroin/payment:latest
+
+    - name: Build and push stock service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./stock
+        push: true
+        tags: ltroin/stock:latest
