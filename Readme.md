@@ -1,4 +1,3 @@
-JC
 ## Architecture: Microservices (Payment + Stock + Order)
 
 ## Framework: Flask + Redis on Kubernetes
@@ -22,8 +21,39 @@ Useful links:
 - https://www.youtube.com/watch?v=OqCK95AS-YE
 - https://www.youtube.com/watch?v=X48VuDVv0do&t=263s
 
+# Test Instructions of Kubernetes
 
+### 1. Start minikube cluster
+`minikube start --cpus 7`
 
+### 2. Start the addon to enable ingress
+`minikube addons enable ingress`
+
+### 3. Deploy the redis
+`bash deploy-charts-minikube.sh`
+
+### 4. Apply files of k8s cluster to build
+`kubectl apply -f k8s/.`
+
+### 5. Create a network tunnel to expose services
+`minikube tunnel`
+
+### 6. Test the microservices
+`python test/test_microservices.py`
+
+#### get all the pods status
+`kubectl get pods`
+
+#### check the pod
+`kubectl describe pod pod_name`
+
+#### delete the k8s cluster
+`kubectl delete -f k8s/.`
+
+#### stop and delete the cluster
+`minikube stop`
+
+`minikube delete`
 
 
 # Web-scale Data Management Project Template
